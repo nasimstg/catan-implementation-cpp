@@ -1,8 +1,11 @@
+#ifndef DEVELOPMENTCARD_HPP
+#define DEVELOPMENTCARD_HPP
+
 #include <string>
 
 namespace ariel
 {
-    enum class CardType { MONOPOLY, BUILDING_ROADS, YO_ABUNDANCE, KNIGHT, VICTORY_POINT };
+    enum class CardType { MONOPOLY, BUILDING_ROADS, YO_ABUNDANCE, KNIGHT, VICTORY_POINT, NONE };
 
     class DevelopmentCard
     {
@@ -21,3 +24,4 @@ namespace ariel
         CardType getType() const { return type; }
     };
 }
+#endif

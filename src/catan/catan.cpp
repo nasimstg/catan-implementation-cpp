@@ -1,12 +1,16 @@
 #include "catan.hpp"
 #include <iostream>
 #include <time.h>
+
 namespace ariel{
     
     void Catan::ChooseStartingPlayer(){
-        srand(time(NULL));
+        /*srand(time(NULL));
         int random = rand() % 3;
-        startingPlayer = players[random];
+        startingPlayer = players[random];*/
+
+        startingPlayer = players[0];
+        current = startingPlayer;
         std::cout << startingPlayer.getName() << " will start the game.\n";
     }
 
@@ -22,6 +26,20 @@ namespace ariel{
             }
         }
         std::cout << "No player has won the game yet.\n";
+    }
+
+    void Catan::endTurn(){
+        for(Player p : players){
+            if(p.getName() == current.getName()){
+                if(p.getName() == players[players.size() - 1].getName()){
+                    current = players[0];
+                }
+                else{
+                    current = players[players.size() - 1];
+                }
+                return;
+            }
+        }
     }
 
 }

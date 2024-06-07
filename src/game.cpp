@@ -6,8 +6,57 @@ using namespace ariel;
 using namespace std;
 
 int main(){
-    Catan c = Catan(Player("Alice"), Player("Bob"), Player("Charlie"));
-    c.ChooseStartingPlayer();
+    Player p1 = Player("Alice");
+    Player p2 = Player("Bob");
+    Player p3 = Player("Charlie");
+    Catan c = Catan(p1, p2, p3);
+    
+    Board b = c.getBoard();
+    b.printMap();
+    cout << endl;
+    b.printAdjecency();
 
+    /*
+               00 01 02
+              03 04 05 06
+             07 08 09 10 11
+              12 13 14 15
+                16 17 18
+
+                02 03 03
+               04 04 05 05
+              06 06 07 08 08
+               09 09 10 10
+                11 11 12
+    */
+
+    p1.placeSettelemnt(Location3d{2, 4, 4}, &b);
+    p1.placeRoad(Location2d{4, 4}, &b);
+
+    p2.placeSettelemnt(Location3d{6, 7, 9}, &b);
+    p2.placeRoad(Location2d{7, 9}, &b);
+
+    p3.placeSettelemnt(Location3d{6, 9, 9}, &b);
+
+    p3.placeSettelemnt(Location3d{10, 11, 12}, &b);
+    p3.placeRoad(Location2d{11, 12}, &b);
+
+
+    p1.placeSettelemnt(Location3d{2, 5, 5}, &b);
+    p1.placeRoad(Location2d{5, 5}, &b);
+
+    p2.placeSettelemnt(Location3d{8, 8, 10}, &b);
+    p2.placeRoad(Location2d{8, 10}, &b);
+
+    p3.placeSettelemnt(Location3d{9, 11, 11}, &b);
+    p3.placeRoad(Location2d{11, 11}, &b);
+
+
+    
+
+    p1.printPoints();
+    p2.printPoints();
+    p3.printPoints();
+    c.printWinner();
     return 0;
 }
