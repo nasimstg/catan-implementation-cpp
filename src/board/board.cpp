@@ -278,15 +278,71 @@ void Board::printGraph() {
     tileGraph.printGraph();
 }
 bool Board::isFree(Location3d loc) {
+    // Check is loc.x and loc.y are adjecent
+    Tile t = getTile(loc.x);
+    bool isAdjecent = false;
+    bool adjecentDouble = false;
+    for (auto t : t.adjecent) {
+        if (t != nullptr) {
+            if (t->number == loc.x) {
+                adjecentDouble = true;
+            }
+            if (t->number == loc.y) {
+                isAdjecent = true;
+                break;
+            }
+        }
+    }
+    if (adjecentDouble) {
+        t = getTile(loc.y);
+        for (auto t : t.adjecent) {
+            if (t != nullptr) {
+                if (t->number == loc.x) {
+                    isAdjecent = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Check if loc.x and loc.z are adjecent
+    t = getTile(loc.x);
+    adjecentDouble = false;
+    for (auto t : t.adjecent) {
+        if (t != nullptr) {
+            if (t->number == loc.x) {
+                adjecentDouble = true;
+            }
+            if (t->number == loc.z) {
+                isAdjecent = true;
+                break;
+            }
+        }
+    }
+    if (adjecentDouble) {
+        t = getTile(loc.z);
+        for (auto t : t.adjecent) {
+            if (t != nullptr) {
+                if (t->number == loc.x) {
+                    isAdjecent = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (!isAdjecent) {
+        std::cout << "All three tile should have a common point\n";
+        return false;
+    }
+
     for (Settlement s : settlements_A) {
-        if (
-            ((loc.x == s.loc.x || loc.x == s.loc.y || loc.x == s.loc.z) &&
-             (loc.y == s.loc.x || loc.y == s.loc.y || loc.y == s.loc.z)) ||
-            ((loc.x == s.loc.x || loc.x == s.loc.y || loc.x == s.loc.z) &&
-             (loc.z == s.loc.x || loc.z == s.loc.y || loc.z == s.loc.z)) ||
-            ((loc.z == s.loc.x || loc.z == s.loc.y || loc.z == s.loc.z) &&
-             (loc.y == s.loc.x || loc.y == s.loc.y || loc.y == s.loc.z))) {
-            return false;
+        if (loc.x == s.loc.x || loc.x == s.loc.y || loc.x == s.loc.z) {
+            if (loc.y == s.loc.x || loc.y == s.loc.y || loc.y == s.loc.z) {
+                if (loc.z == s.loc.x || loc.z == s.loc.y || loc.z == s.loc.z) {
+                    // If any pair matches, the location is not free
+                    return false;
+                }
+            }
         }
     }
     return true;

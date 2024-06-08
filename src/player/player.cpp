@@ -15,6 +15,7 @@ void Player::placeSettelemnt(Location3d location, Board *board) {
         if (!firstTurn && !secondTurn) {
             if (resources[ResourceType::WOOD] < 1 || resources[ResourceType::IRON] < 1 || resources[ResourceType::BRICK] < 1 || resources[ResourceType::WOOL] < 1) {
                 std::cout << "Not enough resources to place a settlement" << std::endl;
+                return;
             }
             resources[ResourceType::WOOD] -= 1;
             resources[ResourceType::IRON] -= 1;
@@ -43,6 +44,7 @@ void Player::placeRoad(Location2d location, Board *board, CardType type) {
     if ((this->resources[ResourceType::WOOD] >= 1 && this->resources[ResourceType::BRICK] >= 1) || firstTurn || secondTurn) {
 
         if (board->isFree(location)) {
+            bool roadPlaced = false;
             for (auto s : this->settlements) {
                 /*
                     sx, sy, sz is the location of a settelment s
@@ -56,6 +58,7 @@ void Player::placeRoad(Location2d location, Board *board, CardType type) {
                     (location.y == s.loc.x || location.y == s.loc.y || location.y == s.loc.z)) {
                     isCloseToSettlement = true;
                 }
+
                 for (auto r : s.roads) {
                     for (auto t : r.segments) {
                         if ((location.x == t.x || location.x == t.y) && (location.y == t.x || location.y == t.y)) {
@@ -64,8 +67,9 @@ void Player::placeRoad(Location2d location, Board *board, CardType type) {
                         }
                     }
                 }
+
                 if (isCloseToRoad || isCloseToSettlement) {
-                    if (type != CardType::BUILDING_ROADS || (!firstTurn && !secondTurn)) {
+                    if (type != CardType::BUILDING_ROADS && !firstTurn && !secondTurn) {
                         this->resources[ResourceType::WOOD] -= 1;
                         this->resources[ResourceType::BRICK] -= 1;
                     }
@@ -76,13 +80,22 @@ void Player::placeRoad(Location2d location, Board *board, CardType type) {
                     s.roads.push_back(road);
                     board->updateSettlement(s);
                     std::cout << "Road placed at " << location.x << "," << location.y << ".\n";
-                    if (this->settlements.size() < 2) {
+                    if (this->settlements.size() <= 2) {
                         for (auto r : s.roads) {
                             for (auto t : r.segments) {
                                 ResourceType type = board->getTile(t.x).resource;
-                                this->resources[type] += 1;
-                                type = board->getTile(t.y).resource;
-                                this->resources[type] += 1;
+                                if (type != ResourceType::NONE)
+                                    this->resources[type] += 1;
+                                if (t.x != t.y) {
+                                    type = board->getTile(t.y).resource;
+                                    if (type != ResourceType::NONE)
+                                        this->resources[type] += 1;
+                                } else {
+                                    Tile tile = board->getTile(t.x);
+                                    ResourceType type = board->getNextTile(tile);
+                                    if (type != ResourceType::NONE)
+                                        this->resources[type] += 1;
+                                }
                             }
                         }
                     }
@@ -95,12 +108,12 @@ void Player::placeRoad(Location2d location, Board *board, CardType type) {
                         secondTurn = true;
                         endTurn();
                     }
-
+                    roadPlaced = true;
                     return;
-                } else {
-                    std::cout << "Road Has to be connected to a Setterment or Road " << std::endl;
                 }
             }
+            if (!roadPlaced)
+                std::cout << "Road Has to be connected to a Setterment or Road " << std::endl;
         } else {
             std::cout << "Cannot place road here" << std::endl;
         }
@@ -166,54 +179,31 @@ void Player::rollDice(Board *board) {
     }
 }
 
-bool Player::trade(Player &p, ResourceType give, ResourceType get, int amount_give, int amount_get, Board *board) {
-
+bool Player::trade(Player *p, ResourceType give, ResourceType get, int amount_give, int amount_get, Board *board) {
     Player *cp = catan->current;
     if (this->p_name != cp->getName()) {
         std::cout << "Not your turn" << std::endl;
         return false;
     }
-    if (this->p_name == p.getName())
+    if (this->p_name == p->getName())
         std::cout << "Cannot trade with yourself" << std::endl;
     if (resources[give] < amount_give) {
         std::cout << "Not enough resources to trade" << std::endl;
     }
 
-    // Request the other player to accept the trade
-    bool accepted = p.acceptTrade(*this, give, get, amount_give, amount_get);
-
-    if (accepted) {
-        // If the other player accepted, update the resources
-        resources[give] -= amount_give;
-        resources[get] += amount_get;
-    }
-
-    return accepted;
-}
-
-bool Player::acceptTrade(Player &trader, ResourceType give, ResourceType get, int amount_give, int amount_get) {
-    if (this->p_name == trader.getName())
-        std::cout << "Cannot trade with yourself" << std::endl;
-
-    // Decide whether to accept the trade
-    // This could be based on AI or user input
-    std::cout << "Player " << trader.getName() << " wants to trade " << amount_give << " " << give << " for " << amount_get << " " << get << ". Do you accept? (yes/no)" << std::endl;
-    std::string response;
-    std::cin >> response;
-
-    if (response == "yes") {
-        if (resources[give] < amount_get) {
-            std::cout << "Not enough resources to trade" << std::endl;
-        }
-
-        // Update the resources
-        resources[give] -= amount_get;
-        resources[get] += amount_give;
-
+    if (p->hasResource(get, amount_get)) {
+        p->updateResources(give, amount_give);
+        p->updateResources(get, -amount_get);
+        this->resources[get] += amount_get;
+        this->resources[give] -= amount_give;
+        std::cout << p_name << " Traded " << amount_give << " " << give << " for " << amount_get << " " << get << " with " << p->getName() << std::endl;
         return true;
+    } else {
+        std::cout << "Trade failed" << std::endl;
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 void Player::buyDevelopmentCard(Board *board) {
@@ -340,4 +330,19 @@ void Player::endTurn() {
     else if (index == 2)
         catan->current = catan->players[0];
 }
+void Player::printResources() const {
+    std::cout << p_name << " has the following resources: ";
+    for (auto r : resources) {
+        std::cout << r.second << " " << r.first << ", ";
+    }
+    std::cout << std::endl;
+}
+bool Player::hasResource(ResourceType type, int amount) {
+    return resources.at(type) >= amount;
+}
+
+void Player::updateResources(ResourceType type, int amount) {
+    resources[type] += amount;
+}
+
 }; // namespace ariel

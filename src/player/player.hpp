@@ -66,9 +66,12 @@ public:
 
     void endTurn();
 
-    bool trade(Player &p, ResourceType give, ResourceType get, int amount_give, int amount_get, Board *board); // Now returns bool
-    bool acceptTrade(Player &trader, ResourceType give, ResourceType get, int amount_give, int amount_get);
+    bool trade(Player *p, ResourceType give, ResourceType get, int amount_give, int amount_get, Board *board); // Now returns bool
     void printDevelopmentCards() const;
+
+    void printResources() const;
+    bool hasResource(ResourceType type, int amount);
+    void updateResources(ResourceType type, int amount);
 };
 } // namespace ariel
 #endif

@@ -68,6 +68,15 @@ public:
             }
         }
     }
+    ResourceType getNextTile(Tile tile) {
+        size_t index = 0;
+        for (auto t : map) {
+            index++;
+            if (t.number == tile.number) {
+                return map[index].resource;
+            }
+        }
+    }
 };
 } // namespace ariel
 #endif
