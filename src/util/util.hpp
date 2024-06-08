@@ -3,26 +3,25 @@
 #include <vector>
 
 namespace ariel {
-    class Player;
-    struct Location3d {
-        int x, y, z;
-    };
+class Player;
+struct Location3d {
+    int x, y, z;
+};
 
-    struct Location2d {
-        int x, y;
-    };
+struct Location2d {
+    int x, y;
+};
 
-    struct Road
-    {
-        Player* owner;
-        std::vector<Location2d> segments;
-    };
+struct Road {
+    Player *owner;
+    std::vector<Location2d> segments;
+};
 
-    struct Settlement {
-        Player* owner;
-        int type;
-        Location3d loc;
-        std::vector<Road> roads;
-    };
-}
+struct Settlement {
+    Player *owner;
+    int type;
+    Location3d loc;
+    std::vector<Road> roads;
+};
+} // namespace ariel
 #endif

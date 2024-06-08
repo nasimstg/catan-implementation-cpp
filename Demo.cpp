@@ -1,14 +1,13 @@
+#include "board.hpp"
+#include "catan.hpp"
+#include "player.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include "catan.hpp"
-#include "player.hpp"
-#include "board.hpp"
 using namespace std;
 using namespace ariel;
 
-int main()
-{
+int main() {
     Player p1("Amit");
     Player p2("Yossi");
     Player p3("Dana");
@@ -29,12 +28,9 @@ int main()
     vector<int> placesNum = {4, 9};
     p2.placeSettelemnt(places, placesNum, board);
     p2.placeRoad(places, placesNum, board);
-    try
-    {
+    try {
         p3.placeSettelemnt(places, placesNum, board); // p3 tries to place a settlement in the same location as p2.
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         cout << e.what() << endl;
     }
     vector<string> places = {"Forest", "Pasture Land"};
@@ -62,12 +58,9 @@ int main()
     p3.rollDice(); // Lets say it's print 3. Then, p3 gets wheat from the Agricultural Land and Ore from the Mountains, p1 gets wheat from the Agricultural Land.
     p3.endTurn();  // p3 ends his turn.
 
-    try
-    {
+    try {
         p2.rollDice(); // p2 tries to roll the dice again, but it's not his turn.
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         cout << e.what() << endl;
     }
 

@@ -1,20 +1,20 @@
-#include "./catan/catan.hpp"
 #include "./board/board.hpp"
+#include "./catan/catan.hpp"
 #include "./player/player.hpp"
 
 using namespace ariel;
 using namespace std;
 
-int main(){
+int main() {
     Player p1 = Player("Alice");
     Player p2 = Player("Bob");
     Player p3 = Player("Charlie");
     Catan c = Catan(p1, p2, p3);
-    
+
     Board b = c.getBoard();
-    b.printMap();
+    /*b.printMap();
     cout << endl;
-    b.printAdjecency();
+    b.printAdjecency();*/
 
     /*
                00 01 02
@@ -41,18 +41,8 @@ int main(){
     p3.placeSettelemnt(Location3d{10, 11, 12}, &b);
     p3.placeRoad(Location2d{11, 12}, &b);
 
-
-    p1.placeSettelemnt(Location3d{2, 5, 5}, &b);
-    p1.placeRoad(Location2d{5, 5}, &b);
-
-    p2.placeSettelemnt(Location3d{8, 8, 10}, &b);
-    p2.placeRoad(Location2d{8, 10}, &b);
-
-    p3.placeSettelemnt(Location3d{9, 11, 11}, &b);
-    p3.placeRoad(Location2d{11, 11}, &b);
-
-
-    
+    p1.placeSettelemnt(Location3d{5, 7, 8}, &b);
+    p1.placeRoad(Location2d{5, 8}, &b);
 
     p1.printPoints();
     p2.printPoints();
