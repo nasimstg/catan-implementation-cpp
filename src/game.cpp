@@ -57,8 +57,21 @@ int main() {
     p1.printResources();                                             // Alice has the following resources: 1 OATS, 0 WOOD, 3 IRON, 0 BRICK, 0 WOOL,
     p2.printResources();                                             // Bob has the following resources: 1 OATS, 1 WOOD, 0 IRON, 1 BRICK, 0 WOOL,
 
-    p2.placeRoad(Location2d{10, 10}, &b); // Road placed at 10,10.
+    p2.updateResources(ResourceType::BRICK, 1); // Bob got 1 IRON
+    p2.placeRoad(Location2d{10, 10}, &b);       // Road placed at 10,10. // Multiple roads are connected (Problematic)
+    p2.printResources();                        // Bob has the following resources: 2 OATS, 0 WOOD, 1 IRON, 0 BRICK, 0 WOOL,
     p2.endTurn();
+
+    p3.placeSettelemnt(Location3d{9, 9, 11}, &b); // Settlement placed at 9,9,11.
+    p3.placeRoad(Location2d{9, 9}, &b);           // Road placed at 9,9.
+
+    p3.endTurn();
+
+    p1.printResources(); // Alice has the following resources: 1 OATS, 0 WOOD, 3 IRON, 0 BRICK, 0 WOOL,
+    p2.printResources(); // Bob has the following resources: 2 OATS, 0 WOOD, 1 IRON, 0 BRICK, 0 WOOL,
+    p1.rollDice(&b);
+    p1.printResources(); // Alice has the following resources: 1 OATS, 0 WOOD, 4 IRON, 0 BRICK, 0 WOOL,
+    p2.printResources();
 
     p1.printPoints();
     p2.printPoints();

@@ -53,6 +53,7 @@ void Player::placeRoad(Location2d location, Board *board, CardType type) {
                 */
                 bool isCloseToSettlement = false;
                 bool isCloseToRoad = false;
+                bool possibleRoadSegment = false;
 
                 if ((location.x == s.loc.x || location.x == s.loc.y || location.x == s.loc.z) &&
                     (location.y == s.loc.x || location.y == s.loc.y || location.y == s.loc.z)) {
@@ -67,31 +68,117 @@ void Player::placeRoad(Location2d location, Board *board, CardType type) {
                         }
                     }
                 }
+                Road road;
+
+                for (auto r : s.roads) {
+                    if (r.owner == this) {
+                        for (auto t : r.segments) {
+                            // Check if loc.x or loc.y is equal to x or y
+                            if (location.x == t.x) {
+                                Tile tile = board->getTile(t.y);
+                                // Check if both t.x and t.y numbered tiles are adjacent to the tile
+                                int count = 0;
+                                for (auto adj : tile.adjecent) {
+                                    if (adj->number == t.x) {
+                                        count++;
+
+                                    } else if (adj->number == location.y) {
+                                        count++;
+                                    }
+                                }
+                                if (count == 2) {
+                                    possibleRoadSegment = true;
+                                    break;
+                                }
+                            } else if (location.x == t.y) {
+                                Tile tile = board->getTile(t.x);
+                                // Check if both t.x and t.y numbered tiles are adjacent to the tile
+                                int count = 0;
+                                for (auto adj : tile.adjecent) {
+                                    if (adj->number == t.y) {
+                                        count++;
+
+                                    } else if (adj->number == location.y) {
+                                        count++;
+                                    }
+                                }
+                                if (count == 2) {
+                                    possibleRoadSegment = true;
+                                    break;
+                                }
+                            } else if (location.y == t.x) {
+                                Tile tile = board->getTile(t.y);
+                                // Check if both t.x and t.y numbered tiles are adjacent to the tile
+                                int count = 0;
+                                for (auto adj : tile.adjecent) {
+                                    if (adj->number == t.x) {
+                                        count++;
+
+                                    } else if (adj->number == location.x) {
+                                        count++;
+                                    }
+                                }
+                                if (count == 2) {
+                                    possibleRoadSegment = true;
+                                    break;
+                                }
+                            } else if (location.y == t.y) {
+                                Tile tile = board->getTile(t.x);
+                                // Check if both t.x and t.y numbered tiles are adjacent to the tile
+                                int count = 0;
+                                for (auto adj : tile.adjecent) {
+                                    if (adj->number == t.y) {
+                                        count++;
+
+                                    } else if (adj->number == location.x) {
+                                        count++;
+                                    }
+                                }
+                                if (count == 2) {
+                                    possibleRoadSegment = true;
+                                    break;
+                                }
+                            }
+                        }
+                        road = r;
+                    }
+                }
 
                 if (isCloseToRoad || isCloseToSettlement) {
                     if (type != CardType::BUILDING_ROADS && !firstTurn && !secondTurn) {
                         this->resources[ResourceType::WOOD] -= 1;
                         this->resources[ResourceType::BRICK] -= 1;
                     }
-                    Road road;
-                    road.segments.push_back(location);
-                    road.owner = this;
-                    board->addRoad(road);
-                    s.roads.push_back(road);
-                    board->updateSettlement(s);
+                    if (!possibleRoadSegment) {
+                        road.segments.push_back(location);
+                        road.owner = this;
+                        board->addRoad(road);
+                        s.roads.push_back(road);
+                        board->updateSettlement(s);
+                    }
+                    if (possibleRoadSegment) {
+                        road.segments.push_back(location);
+                        board->addRoad(road);
+                        s.roads.pop_back();
+                        s.roads.push_back(road);
+                        board->updateSettlement(s);
+                    }
+
                     std::cout << "Road placed at " << location.x << "," << location.y << ".\n";
                     if (this->settlements.size() <= 2) {
                         for (auto r : s.roads) {
                             for (auto t : r.segments) {
                                 ResourceType type = board->getTile(t.x).resource;
-                                if (type != ResourceType::NONE)
+                                if (type != ResourceType::NONE) {
                                     this->resources[type] += 1;
-                                if (t.x != t.y) {
-                                    type = board->getTile(t.y).resource;
+                                }
+                                if (t.x == t.y) {
+                                    Tile tile = board->getTile(t.x);
+                                    ResourceType type = board->getNextTile(tile);
                                     if (type != ResourceType::NONE)
                                         this->resources[type] += 1;
                                 } else {
-                                    Tile tile = board->getTile(t.x);
+                                    Tile tile = board->getTile(t.y);
                                     ResourceType type = board->getNextTile(tile);
                                     if (type != ResourceType::NONE)
                                         this->resources[type] += 1;
@@ -129,7 +216,8 @@ void Player::rollDice(Board *board) {
         return;
     }
 
-    int dice = rand() % 6 + 1 + rand() % 6 + 1; // 2 dice
+    /*int dice = rand() % 6 + 1 + rand() % 6 + 1; // 2 dice*/
+    int dice = 8;
     std::cout << p_name << " rolled " << dice << ".\n";
 
     if (dice == 7) {
@@ -165,6 +253,7 @@ void Player::rollDice(Board *board) {
     for (auto s : board->getSettlements()) {
         for (auto r : s.roads) {
             for (auto t : r.segments) {
+
                 if (t.x == dice || t.y == dice) {
                     if (s.type == 1) {
                         ResourceType type = board->getTile(dice).resource;
@@ -173,10 +262,20 @@ void Player::rollDice(Board *board) {
                         ResourceType type = board->getTile(dice).resource;
                         s.owner->resources[type] += 2;
                     }
+                    if (t.x == t.y) {
+                        if (s.type == 1) {
+                            ResourceType type = board->getTile(dice).resource;
+                            s.owner->resources[type] += 1;
+                        } else {
+                            ResourceType type = board->getTile(dice).resource;
+                            s.owner->resources[type] += 2;
+                        }
+                    }
                 }
             }
         }
     }
+    return;
 }
 
 bool Player::trade(Player *p, ResourceType give, ResourceType get, int amount_give, int amount_get, Board *board) {

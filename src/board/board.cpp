@@ -278,10 +278,17 @@ void Board::printGraph() {
     tileGraph.printGraph();
 }
 bool Board::isFree(Location3d loc) {
+    // Check if any number is < 2 or > 12
+    if (loc.x < 2 || loc.x > 12 || loc.y < 2 || loc.y > 12 || loc.z < 2 || loc.z > 12) {
+        std::cout << "All numbers should be between 2 and 12\n";
+        return false;
+    }
+
     // Check is loc.x and loc.y are adjecent
     Tile t = getTile(loc.x);
     bool isAdjecent = false;
     bool adjecentDouble = false;
+    int numnber = 0;
     for (auto t : t.adjecent) {
         if (t != nullptr) {
             if (t->number == loc.x) {
@@ -349,6 +356,13 @@ bool Board::isFree(Location3d loc) {
 }
 
 bool Board::isFree(Location2d loc) {
+
+    // Check if any number is < 2 or > 12
+    if (loc.x < 2 || loc.x > 12 || loc.y < 2 || loc.y > 12) {
+        std::cout << "All numbers should be between 2 and 12\n";
+        return false;
+    }
+
     Tile t = getTile(loc.x);
 
     bool isAdjecent = false;
